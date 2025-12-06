@@ -8,8 +8,56 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- INTERNAL STYLES FOR THE LOADER -->
+    <style>
+        /* This makes the screen dull/dark */
+        #loadingOverlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7); /* Black with opacity */
+            z-index: 9999; /* Sit on top of everything */
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        /* The Spinner Animation */
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3; /* Light grey */
+            border-top: 5px solid #e74c3c; /* Red (matching your theme) */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        /* Text below spinner */
+        .loading-text {
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
+
+    <!-- LOADING OVERLAY HTML -->
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Please wait...</div>
+    </div>
 
     <!-- Header -->
     <header class="header">
@@ -77,7 +125,7 @@
                             <option value="Web Development">Web Development</option>
                             <option value="Graphic Design">Graphic Design</option>
                         </select>
-                    </div>
+                    </div> <!-- Added missing closing div -->
 
                     <div class="form-group">
                         <textarea name="message" id="message" placeholder="Your Message (Optional)" rows="5"></textarea>
@@ -130,37 +178,47 @@
         </div>
     </footer>
 
-
     <!-- GOOGLE SHEETS SUBMIT SCRIPT -->
     <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbzL0ME_Rga3QjIwRSMXWJPqojbiVYln5qegVQdhr0kUwINLZh5JOjaMxyZnMtghdeGMcg/exec";
+        const scriptURL = "https://script.google.com/macros/s/AKfycbzGv0BxvZzbjnJLZ7EXaGBYlxEt_Exi3dQHASaHjmLWE5GuTQlx5cgWTsZQ6yRmUyVB/exec";
+        const loadingOverlay = document.getElementById("loadingOverlay");
 
-    document.getElementById("joinForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
+        document.getElementById("joinForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            
+            // 1. Show the loading overlay
+            loadingOverlay.style.display = "flex";
 
-        const form = e.target;
+            const form = e.target;
+            const data = {
+                name: form.name.value,
+                email: form.email.value,
+                course: form.course.value,
+                message: form.message.value
+            };
 
-        const data = {
-            name: form.name.value,
-            email: form.email.value,
-            course: form.course.value,
-            message: form.message.value
-        };
+            try {
+                // 2. Send data to Google Sheets
+                await fetch(scriptURL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
 
-        // send data to Google Sheets
-        await fetch(scriptURL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
+                // 3. Hide overlay and Show Success
+                loadingOverlay.style.display = "none";
+                alert("Submitted! We will contact you soon.");
+                form.reset();
+
+            } catch (error) {
+                // Handle Errors
+                loadingOverlay.style.display = "none";
+                alert("Something went wrong. Please check your internet connection.");
+                console.error('Error!', error.message);
+            }
         });
-
-        alert("Submitted! We will contact you soon.");
-        form.reset();
-    });
     </script>
-
-    <script src="script.js"></script>
 
 </body>
 </html>
