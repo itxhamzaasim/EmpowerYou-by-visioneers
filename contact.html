@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+
     <!-- Header -->
     <header class="header">
         <nav class="navbar">
@@ -57,14 +58,18 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- FORM -->
                 <form class="contact-form" id="joinForm">
                     <div id="formMessage" class="form-message" style="display: none;"></div>
                     <div class="form-group">
                         <input type="text" name="name" id="name" placeholder="Your Name" required>
                     </div>
+
                     <div class="form-group">
                         <input type="email" name="email" id="email" placeholder="Your Email" required>
                     </div>
+
                     <div class="form-group">
                         <select name="course" id="course" required>
                             <option value="">Select a Course</option>
@@ -73,9 +78,11 @@
                             <option value="Graphic Design">Graphic Design</option>
                         </select>
                     </div>
+
                     <div class="form-group">
                         <textarea name="message" id="message" placeholder="Your Message (Optional)" rows="5"></textarea>
                     </div>
+
                     <button type="submit" class="btn btn-primary btn-join" id="submitBtn">Join Us</button>
                 </form>
             </div>
@@ -123,7 +130,37 @@
         </div>
     </footer>
 
+
+    <!-- GOOGLE SHEETS SUBMIT SCRIPT -->
+    <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzL0ME_Rga3QjIwRSMXWJPqojbiVYln5qegVQdhr0kUwINLZh5JOjaMxyZnMtghdeGMcg/exec";
+
+    document.getElementById("joinForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const form = e.target;
+
+        const data = {
+            name: form.name.value,
+            email: form.email.value,
+            course: form.course.value,
+            message: form.message.value
+        };
+
+        // send data to Google Sheets
+        await fetch(scriptURL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        alert("Submitted! We will contact you soon.");
+        form.reset();
+    });
+    </script>
+
     <script src="script.js"></script>
+
 </body>
 </html>
-
